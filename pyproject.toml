@@ -2,7 +2,7 @@
 name = "compromeets"
 version = "0.1.0"
 description = "A Python app for finding where to meet."
-packages = [{include = "boomerang"}]
+packages = [{include = "compromeets"}]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -141,4 +141,4 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 [[tool.bumpversion.files]]
-filename = "boomerang/__init__.py"
+filename = "compromeets/__init__.py"

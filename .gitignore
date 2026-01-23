@@ -11,3 +11,21 @@ wheels/
 
 # Environment variables
 .env
+
+# Ruff
+.ruff_cache
+
+# Mac
+.DS_Store
+
+# Data
+*.xml
+*.zip
+*.pbf
+*.csv
+*.txt
+
+# UV
+uv.lock
+
+DEVELOPMENT_GUIDE.md

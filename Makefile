@@ -1,23 +1,30 @@
-run=uv run
+RUN := uv run
+PYTHONPATH := $(CURDIR)
 
 fmt:
-	${RUN} ruff format
-	${RUN} ruff check --fix
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) ruff format
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) ruff check --fix
 
 lint:
-	${RUN} ruff check
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) ruff check
 
 release-patch:
-	${RUN} bump-my-version bump patch
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) bump-my-version bump patch
 
 release-minor:
-	${RUN} bump-my-version bump minor
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) bump-my-version bump minor
 
 release-major:
-	${RUN} bump-my-version bump major
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) bump-my-version bump major
 
 test:
-	${RUN} pytest
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) python -m pytest tests/unit/
 
 test-cov:
-	${RUN} pytest --cov=compromeets
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) python -m pytest --cov=compromeets tests/unit/
+
+test-integration:
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) python -m pytest tests/integration/
+
+test-integration-cov:
+	PYTHONPATH="$(PYTHONPATH)" $(RUN) python -m pytest --cov=compromeets tests/integration/

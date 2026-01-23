@@ -4,21 +4,32 @@ version = "0.1.0"
 description = "A Python app for finding where to meet."
 packages = [{include = "compromeets"}]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
+    "googlemaps>=4.10.0",
+    "httpx>=0.27.0",
+    "pytest>=9.0.1",
+    "r5py>=1.0.7",
+    "responses>=0.25.8",
     "scikit-learn>=1.6.1",
+    "transx2gtfs>=0.4.1",
 ]
 
 [dependency-groups]
 dev = [
     "bump-my-version>=1.2.4",
+    "folium>=0.20.0",
+    "ipykernel>=7.1.0",
+    "mapclassify>=2.8.1",
     "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "pytest-dotenv>=0.5.2",
     "pytest-env>=1.1.5",
     "pytest-xdist>=3.8.0",
+    "r5py-sampledata-helsinki>=1.0.3.post3",
     "ruff>=0.14.5",
+    "seaborn>=0.13.2",
 ]
 
 [tool.basedpyright]
@@ -29,7 +40,8 @@ ENVIRONMENT = "test"
 
 [tool.pytest.ini_options]
 markers = [
-   "containers: tests that require Docker/Testcontainers"
+   "containers: tests that require Docker/Testcontainers",
+   "integration: tests that make real API calls or external requests",
 ]
 
 [tool.ruff]

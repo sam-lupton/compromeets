@@ -33,6 +33,10 @@ You will need **GOOGLE_PLACES_API_KEY** to be set
 - [BODS (Bus Data)](https://data.bus-data.dft.gov.uk/timetable/download/)
 - [ONS Postcodes](https://geoportal.statistics.gov.uk/search?tags=onspd)
 
+# Appendix: alternative frameworks
+
+- Alternatives to Google Places API: [SERP](https://medium.com/@paulotaylor/google-places-api-alternatives-a-guide-to-save-you-big-money-with-genai-774605e04769)
+
 # Appendix: trans2gtfs updates
 
 Things to update in `transx2gtfs` if needed (at the moment all the necessary open source transit data is already in GTFS):

@@ -4,7 +4,6 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 
 class TransXChangeConverter:
@@ -14,16 +13,18 @@ class TransXChangeConverter:
         self,
         agency_timezone: str = "Europe/London",
         agency_lang: str = "en",
-        agency_url: Optional[str] = None,
+        agency_url: str | None = None,
         max_memory_mb: int = 8192,
     ):
-        """Initialize the converter with default settings.
+        """
+        Initialize the converter with default settings.
 
         Args:
             agency_timezone: GTFS agency timezone (default: Europe/London)
             agency_lang: GTFS agency language code (default: en)
             agency_url: Optional default agency URL
             max_memory_mb: Node.js max memory in MB (default: 8192)
+
         """
         self.agency_timezone = agency_timezone
         self.agency_lang = agency_lang
@@ -37,7 +38,8 @@ class TransXChangeConverter:
         update_stops: bool = False,
         skip_stops: bool = False,
     ) -> None:
-        """Convert TransXChange data to GTFS format.
+        """
+        Convert TransXChange data to GTFS format.
 
         Args:
             input_path: Path to TransXChange file(s) - can be:
@@ -52,6 +54,7 @@ class TransXChangeConverter:
         Raises:
             subprocess.CalledProcessError: If conversion fails
             FileNotFoundError: If Node.js or transxchange2gtfs is not installed
+
         """
         input_path = Path(input_path)
         output_path = Path(output_path)
@@ -89,24 +92,24 @@ class TransXChangeConverter:
         # Run conversion
         try:
             result = subprocess.run(cmd, check=False, env=env, capture_output=True, text=True)
-            
+
             # Print stdout/stderr for visibility
             if result.stdout:
                 print(result.stdout)
             if result.stderr:
                 print(result.stderr, file=sys.stderr)
-            
+
             # Check if output file was actually created
             if not output_path.exists():
                 error_msg = f"TransXChange conversion failed - output file not created.\nExit code: {result.returncode}"
                 if result.stderr:
                     error_msg += f"\nError: {result.stderr}"
                 raise RuntimeError(error_msg)
-            
+
             # Check exit code
             if result.returncode != 0:
                 print(f"Warning: transxchange2gtfs returned exit code {result.returncode} but output file exists")
-                
+
         except FileNotFoundError as e:
             msg = (
                 "Node.js or transxchange2gtfs not found. "
@@ -121,13 +124,15 @@ def convert_transxchange_to_gtfs(
     update_stops: bool = False,
     skip_stops: bool = False,
 ) -> None:
-    """Convenience function to convert TransXChange to GTFS with default settings.
+    """
+    Convenience function to convert TransXChange to GTFS with default settings.
 
     Args:
         input_path: Path to TransXChange file(s) or directory
         output_path: Path where GTFS .zip file will be written
         update_stops: Force refresh of NaPTAN stop data
         skip_stops: Skip downloading NaPTAN stop data (use cached)
+
     """
     converter = TransXChangeConverter()
     converter.convert(input_path, output_path, update_stops=update_stops, skip_stops=skip_stops)

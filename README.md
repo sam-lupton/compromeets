@@ -31,13 +31,65 @@ You will need **GOOGLE_PLACES_API_KEY** to be set
 - [Protomaps](https://protomaps.com/) (Regional)
 - [Geofabrik](https://download.geofabrik.de/europe/united-kingdom/england/greater-london.html) (City-level)
 - [BODS (Bus Data)](https://data.bus-data.dft.gov.uk/timetable/download/)
+- [TfL Journey Planner (Tube, DLR, Tram)](http://tfl.gov.uk/journey-planner-timetables.zip)
 - [ONS Postcodes](https://geoportal.statistics.gov.uk/search?tags=onspd)
+- [NaPTAN Stop Data (Use CSV)](https://beta-naptan.dft.gov.uk/Download/National)
 
 # Appendix: alternative frameworks
 
 - Alternatives to Google Places API: [SERP](https://medium.com/@paulotaylor/google-places-api-alternatives-a-guide-to-save-you-big-money-with-genai-774605e04769)
 
-# Appendix: trans2gtfs updates
+# TODO
+
+- The package falls back to 0 when it can't find latlong stop data, which is not ideal behaviour. It also can't handle the Easting Northing format given by TfL. Currently we are fixing this in post during ingestion, but worth fixing at source: https://github.com/planarnetwork/transxchange2gtfs/blob/0132c0b04c84a490083ec44ab9d026f064cf010e/src/transxchange/TransXChangeStream.ts#L78
+- Check that all calendar dates for schedules are provided and find workarounds if not
+- Make inference pipeline
+- Make ingestion pipeline
+- Add pydantic models
+
+# Appendix: TransXChange to GTFS conversion
+
+The project uses the Node.js [`transxchange2gtfs`](https://github.com/planarnetwork/transxchange2gtfs) tool for converting TransXChange timetable data to GTFS format. This is wrapped in a Python interface for ease of use.
+
+## Setup
+
+1. Install Node.js (if not already installed):
+
+   ```bash
+   brew install node  # macOS
+   # or use nvm for version management
+   ```
+
+2. Install the transxchange2gtfs tool:
+   ```bash
+   cd tools/transxchange2gtfs
+   npm install
+   ```
+
+## Usage
+
+```python
+from compromeets.data.ingest.transxchange import convert_transxchange_to_gtfs
+
+convert_transxchange_to_gtfs(
+    input_path="compromeets/artifacts/bods_transxchange/operator.zip",
+    output_path="compromeets/artifacts/bods_gtfs.zip"
+)
+```
+
+Or via the command line:
+
+```bash
+uv run python scripts/ingest_transxchange.py input.zip output-gtfs.zip
+```
+
+## Notes
+
+- The tool automatically downloads NaPTAN stop data on first run
+- Large datasets may require increasing Node.js memory (handled automatically)
+- License: The transxchange2gtfs tool is licensed under GNU GPLv3
+
+## Appendix: trans2gtfs updates (deprecated Python package)
 
 Things to update in `transx2gtfs` if needed (at the moment all the necessary open source transit data is already in GTFS):
 

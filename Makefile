@@ -1,6 +1,11 @@
 RUN := uv run
 PYTHONPATH := $(CURDIR)
 
+setup-transxchange:
+	@echo "Installing transxchange2gtfs Node.js dependencies..."
+	cd tools/transxchange2gtfs && npm install
+	@echo "✓ Setup complete"
+
 fmt:
 	PYTHONPATH="$(PYTHONPATH)" $(RUN) ruff format
 	PYTHONPATH="$(PYTHONPATH)" $(RUN) ruff check --fix

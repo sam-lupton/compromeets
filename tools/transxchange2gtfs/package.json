@@ -1,0 +1,12 @@
+{
+  "name": "transxchange2gtfs-wrapper",
+  "version": "1.0.0",
+  "description": "Wrapper for transxchange2gtfs CLI tool",
+  "private": true,
+  "dependencies": {
+    "transxchange2gtfs": "^1.9.2"
+  },
+  "scripts": {
+    "convert": "transxchange2gtfs"
+  }
+}

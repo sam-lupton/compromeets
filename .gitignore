@@ -28,4 +28,8 @@ wheels/
 # UV
 uv.lock
 
+# Node.js
+node_modules/
+package-lock.json
+
 DEVELOPMENT_GUIDE.md

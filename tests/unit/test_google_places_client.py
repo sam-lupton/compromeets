@@ -6,6 +6,7 @@ import httpx
 import pytest
 
 from compromeets.clients.google_places_client import GooglePlacesClient
+from compromeets.models.domain import PlaceSearchLocationData
 
 
 class TestGooglePlacesClient:
@@ -57,7 +58,8 @@ class TestGooglePlacesClient:
 
         # Test
         client = GooglePlacesClient(api_key="test-key")
-        result = client.search_nearby({"latitude": 37.4224764, "longitude": -122.0842499}, 500, ["pub"])
+        location_data = PlaceSearchLocationData(latitude=37.4224764, longitude=-122.0842499, radius=500)
+        result = client.search_nearby(location_data=location_data, types=["pub"])
 
         # Assertions
         assert result["status"] == "OK"
@@ -93,7 +95,8 @@ class TestGooglePlacesClient:
         # Test
         client = GooglePlacesClient(api_key="test-key")
         with pytest.raises(httpx.HTTPStatusError):
-            client.search_nearby({"latitude": 37.4224764, "longitude": -122.0842499}, 500, ["pub"])
+            location_data = PlaceSearchLocationData(latitude=37.4224764, longitude=-122.0842499, radius=500)
+            client.search_nearby(location_data=location_data, types=["pub"])
         client.close()
 
     @patch("compromeets.clients.google_places_client.httpx.Client")
@@ -122,7 +125,8 @@ class TestGooglePlacesClient:
 
         # Test
         client = GooglePlacesClient(api_key="test-key")
-        result = client.search_nearby({"latitude": 37.4224764, "longitude": -122.0842499}, 1000, ["pub"])
+        location_data = PlaceSearchLocationData(latitude=37.4224764, longitude=-122.0842499, radius=1000)
+        result = client.search_nearby(location_data=location_data, types=["pub"])
 
         # Assertions
         assert result["status"] == "OK"

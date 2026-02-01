@@ -6,25 +6,24 @@ import pytest
 import r5py
 from shapely.geometry.point import Point
 
+from compromeets.services.postcode_resolver import PostcodeResolver
 from compromeets.services.travel_time_service import TravelTimeService
 
 
-def test_postcode_to_point_returns_geometry(postcodes_gdf, transport_network):
-    service = TravelTimeService(postcodes_gdf=postcodes_gdf, transport_network=transport_network)  # type: ignore[arg-type]
-    point = service.postcode_to_point("AA1 1AA")
+def test_postcode_to_point_returns_geometry(postcode_resolver: PostcodeResolver, postcodes_gdf):
+    point = postcode_resolver.postcode_to_point("AA1 1AA")
 
     assert isinstance(point, Point)
     assert point.equals(postcodes_gdf[postcodes_gdf.pcds == "AA1 1AA"].geometry.values[0])
 
 
-def test_postcode_to_point_raises_for_missing_postcode(postcodes_gdf, transport_network):
-    service = TravelTimeService(postcodes_gdf=postcodes_gdf, transport_network=transport_network)  # type: ignore[arg-type]
+def test_postcode_to_point_raises_for_missing_postcode(postcode_resolver: PostcodeResolver):
     with pytest.raises(IndexError):
-        service.postcode_to_point("ZZ9 9ZZ")
+        postcode_resolver.postcode_to_point("ZZ9 9ZZ")
 
 
 def test_max_travel_time_between_postcodes_returns_max_and_wires_matrix_call(
-    monkeypatch, postcodes_gdf, transport_network
+    monkeypatch, postcode_resolver: PostcodeResolver, transport_network
 ):
     captured: dict[str, object] = {}
 
@@ -34,7 +33,7 @@ def test_max_travel_time_between_postcodes_returns_max_and_wires_matrix_call(
 
     monkeypatch.setattr(r5py, "TravelTimeMatrix", fake_travel_time_matrix)
 
-    service = TravelTimeService(postcodes_gdf=postcodes_gdf, transport_network=transport_network)  # type: ignore[arg-type]
+    service = TravelTimeService(postcode_resolver=postcode_resolver, transport_network=transport_network)  # type: ignore[arg-type]
     result = service.max_travel_time_between_postcodes(["AA1 1AA", "BB1 1BB", "CC1 1CC"])
 
     assert result == 31.5
@@ -45,7 +44,9 @@ def test_max_travel_time_between_postcodes_returns_max_and_wires_matrix_call(
     assert captured["transport_modes"] == [r5py.TransportMode.TRANSIT, r5py.TransportMode.WALK]
 
 
-def test_max_travel_time_between_postcodes_dedupes_postcodes(monkeypatch, postcodes_gdf, transport_network):
+def test_max_travel_time_between_postcodes_dedupes_postcodes(
+    monkeypatch, postcode_resolver: PostcodeResolver, postcodes_gdf, transport_network
+):
     captured: dict[str, object] = {}
 
     def fake_travel_time_matrix(**kwargs):
@@ -54,7 +55,7 @@ def test_max_travel_time_between_postcodes_dedupes_postcodes(monkeypatch, postco
 
     monkeypatch.setattr(r5py, "TravelTimeMatrix", fake_travel_time_matrix)
 
-    service = TravelTimeService(postcodes_gdf=postcodes_gdf, transport_network=transport_network)  # type: ignore[arg-type]
+    service = TravelTimeService(postcode_resolver=postcode_resolver, transport_network=transport_network)  # type: ignore[arg-type]
     service.max_travel_time_between_postcodes(["AA1 1AA", "AA1 1AA", "BB1 1BB"])
 
     origins = captured["origins"]
@@ -83,7 +84,9 @@ def test_max_travel_time_between_postcodes_allows_custom_departure_time(monkeypa
 
     monkeypatch.setattr(r5py, "TravelTimeMatrix", fake_travel_time_matrix)
 
-    service = TravelTimeService(postcodes_gdf=postcodes_gdf, transport_network=transport_network)  # type: ignore[arg-type]
+    service = TravelTimeService(
+        postcode_resolver=PostcodeResolver(postcodes_gdf=postcodes_gdf), transport_network=transport_network
+    )  # type: ignore[arg-type]
     custom_departure = datetime.datetime(2026, 3, 10, 9, 15)
     service.max_travel_time_between_postcodes(["AA1 1AA", "BB1 1BB"], departure_time=custom_departure)
 

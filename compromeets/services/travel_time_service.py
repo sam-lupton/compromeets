@@ -59,11 +59,3 @@ class TravelTimeService:
             transport_modes=[r5py.TransportMode.TRANSIT, r5py.TransportMode.WALK],
         )
         return travel_times["travel_time"]  # type: ignore
-
-    def calculate_travel_time(self, origin: tuple[float, float], destination: tuple[float, float]) -> float:
-        pass
-
-    def calculate_travel_time_matrix(
-        self, origins: list[tuple[float, float]], destinations: list[tuple[float, float]]
-    ) -> float:
-        pass

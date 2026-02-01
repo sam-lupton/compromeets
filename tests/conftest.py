@@ -2,6 +2,9 @@ import geopandas as gpd
 import pytest
 from shapely.geometry import Point
 
+from compromeets.services.isochrone_service import IsochroneService
+from compromeets.services.postcode_resolver import PostcodeResolver
+
 
 @pytest.fixture
 def postcodes_gdf() -> gpd.GeoDataFrame:
@@ -21,3 +24,13 @@ def postcodes_gdf() -> gpd.GeoDataFrame:
 @pytest.fixture
 def transport_network() -> object:
     return object()
+
+
+@pytest.fixture
+def postcode_resolver(postcodes_gdf: gpd.GeoDataFrame) -> PostcodeResolver:
+    return PostcodeResolver(postcodes_gdf=postcodes_gdf)
+
+
+@pytest.fixture
+def isochrone_service(postcode_resolver: PostcodeResolver, transport_network: object) -> IsochroneService:
+    return IsochroneService(postcode_resolver=postcode_resolver, transport_network=transport_network)

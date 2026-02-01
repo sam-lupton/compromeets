@@ -4,6 +4,8 @@ from types import TracebackType
 
 import httpx
 
+from compromeets.models.domain import PlaceSearchLocationData
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,8 +23,7 @@ class GooglePlacesClient:
 
     def search_nearby(
         self,
-        location: dict[str, float],
-        radius: float,
+        location_data: PlaceSearchLocationData,
         types: list[str],
         max_result_count: int = 10,
     ) -> dict:
@@ -36,7 +37,29 @@ class GooglePlacesClient:
             json={
                 "includedTypes": types,
                 "maxResultCount": max_result_count,
-                "locationRestriction": {"circle": {"center": location, "radius": int(radius)}},
+                "locationRestriction": {
+                    "circle": {"center": location_data.location_dict(), "radius": location_data.radius}
+                },
+            },
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def search_text(
+        self, text: str, location_data: PlaceSearchLocationData, types: list[str], max_result_count: int = 10
+    ) -> dict:
+        response = self.client.post(
+            self.base_url,
+            headers={
+                "X-Goog-Api-Key": self.api_key or "",
+                "X-Goog-FieldMask": "places.displayName,places.rating,places.userRatingCount,places.location",
+                "Content-Type": "application/json",
+            },
+            json={
+                "textQuery": text,
+                "includedTypes": types,
+                "maxResultCount": max_result_count,
+                "locationBias": {"circle": {"center": location_data.location_dict(), "radius": location_data.radius}},
             },
         )
         response.raise_for_status()

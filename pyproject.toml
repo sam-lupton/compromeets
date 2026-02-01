@@ -37,8 +37,17 @@ reportUnusedCallResult = false
 
 [tool.pytest_env]
 ENVIRONMENT = "test"
+# Reduce JVM signal handler involvement during tests (r5py/R5 runs on Java).
+# This helps avoid noisy "Signal Handlers ... Consider using jsig library" output.
+JAVA_TOOL_OPTIONS = "-Xrs"
 
 [tool.pytest.ini_options]
+addopts = "-p no:faulthandler"
+filterwarnings = [
+   # geopandas imports `shapely.geos` for compatibility; Shapely 2.x deprecates it.
+   # Keep unit test output clean until geopandas removes this import.
+   "ignore:The 'shapely\\.geos' module is deprecated.*:DeprecationWarning:geopandas\\._compat",
+]
 markers = [
    "containers: tests that require Docker/Testcontainers",
    "integration: tests that make real API calls or external requests",

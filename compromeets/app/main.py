@@ -1,0 +1,90 @@
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+import geopandas as gpd
+import pandas as pd
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+
+from compromeets.clients.google_places_client import GooglePlacesClient
+from compromeets.services.isochrone_service import IsochroneService
+from compromeets.services.meeting_area_service import MeetingAreaService
+from compromeets.services.place_search_service import PlaceSearchService
+from compromeets.services.postcode_resolver import PostcodeResolver
+from compromeets.services.suggest_service import SuggestService
+from compromeets.services.transport_network_provider import TransportNetworkProvider
+
+# Setup templates
+templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: build expensive dependencies once
+    print("Loading transport network and services...")
+
+    # Load postcodes
+    postcodes_gdf = pd.read_csv(
+        "~/Downloads/ONSPD_NOV_2025/Data/ONSPD_NOV_2025_UK.csv", usecols=["pcds", "lat", "long"]
+    )
+    postcodes_gdf = gpd.GeoDataFrame(postcodes_gdf, geometry=gpd.points_from_xy(postcodes_gdf.long, postcodes_gdf.lat))
+    postcode_resolver = PostcodeResolver(postcodes_gdf=postcodes_gdf)
+
+    # Build transport network
+    transport_network_provider = TransportNetworkProvider(
+        osm_path=Path("compromeets/artifacts/greater-london-260121.osm.pbf"),
+        gtfs_path=Path("compromeets/artifacts/london_transport_gtfs.zip"),
+    )
+    transport_network = transport_network_provider.get_transport_network()
+
+    # Build service graph
+    isochrone_service = IsochroneService(
+        postcode_resolver=postcode_resolver,
+        transport_network=transport_network,
+    )
+    meeting_area_service = MeetingAreaService()
+    google_places_client = GooglePlacesClient()
+    place_search_service = PlaceSearchService(google_places_client=google_places_client)
+
+    suggest_service = SuggestService(
+        isochrone_service=isochrone_service,
+        meeting_area_service=meeting_area_service,
+        place_search_service=place_search_service,
+        google_places_client=google_places_client,
+    )
+
+    app.state.suggest_service = suggest_service
+
+    print("Services loaded!")
+
+    yield
+
+    google_places_client.close()
+    print("Cleanup complete")
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+class SuggestRequest(BaseModel):
+    postcodes: list[str]
+    types: list[str]
+
+
+def get_suggest_service(request: Request) -> SuggestService:
+    return request.app.state.suggest_service
+
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    """Serve the main HTML page"""
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.post("/suggest")
+def suggest(request_body: SuggestRequest, service: SuggestService = Depends(get_suggest_service)):
+    """API endpoint for suggesting meeting places"""
+    places = service.suggest_places(postcodes=request_body.postcodes, types=request_body.types)
+    return {"places": places}

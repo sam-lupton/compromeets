@@ -6,6 +6,8 @@ packages = [{include = "compromeets"}]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "fastapi>=0.128.0",
+    "fastapi[standard]>=0.112.0",
     "googlemaps>=4.10.0",
     "httpx>=0.27.0",
     "pytest>=9.0.1",
@@ -80,6 +82,7 @@ ignore = [
    "A003",
    "ANN", # flake8-annotations
    "B006", # Do not use mutable data structures for argument defaults
+   "B008", # Do not perform function calls in argument defaults (FastAPI Depends is fine)
    "COM", # flake8-commas
    "C90", # mccabe complexity
    "DJ", # django

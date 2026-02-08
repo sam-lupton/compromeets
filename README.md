@@ -4,7 +4,7 @@ A Python app for finding where to meet, between multiple people.
 
 # Usage
 
-`notebooks/isochrone_testing.ipynb` has the full flow. Download the required map files from the list below, then make sure the names line up with the paths in the notebook. Run `uv sync` to set up your environment, and then point your ipynb kernel to the newly created `.venv` folder.
+Download the required map files from the list below, then make sure the names line up with the paths in `notebooks/isochrone_testing.ipynb`.
 
 To load environment variables from your local `.env` file into `uv`, add the following to your `.zshrc`:
 
@@ -26,7 +26,9 @@ add-zsh-hook chpwd _set_uv_env_file
 _set_uv_env_file
 ```
 
-You will need **GOOGLE_PLACES_API_KEY** to be set
+You will need `GOOGLE_PLACES_API_KEY` to be set.
+
+Once that's all done, you can run the app. For now, it uses a simple template-based frontend on top of a FastAPI backend. Make sure [`uv`](https://docs.astral.sh/uv/getting-started/installation/) is installed and kick off the service with `uv run fastapi dev compromeets/app/main.py`.
 
 # Open source maps
 

@@ -18,7 +18,7 @@ def test_postcode_to_point_returns_geometry(postcode_resolver: PostcodeResolver,
 
 
 def test_postcode_to_point_raises_for_missing_postcode(postcode_resolver: PostcodeResolver):
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError):
         postcode_resolver.postcode_to_point("ZZ9 9ZZ")
 
 

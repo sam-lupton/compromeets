@@ -1,5 +1,7 @@
 A Python app for finding where to meet, between multiple people.
 
+![Compromeets Demo Gif](compromeets/artifacts/compromeets-demo.gif)
+
 # Usage
 
 `notebooks/isochrone_testing.ipynb` has the full flow. Download the required map files from the list below, then make sure the names line up with the paths in the notebook. Run `uv sync` to set up your environment, and then point your ipynb kernel to the newly created `.venv` folder.

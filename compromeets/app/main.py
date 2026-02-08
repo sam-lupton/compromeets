@@ -3,7 +3,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -86,5 +86,12 @@ async def home(request: Request):
 @app.post("/suggest")
 def suggest(request_body: SuggestRequest, service: SuggestService = Depends(get_suggest_service)):
     """API endpoint for suggesting meeting places"""
-    places = service.suggest_places(postcodes=request_body.postcodes, types=request_body.types)
-    return {"places": places}
+    try:
+        places = service.suggest_places(postcodes=request_body.postcodes, types=request_body.types)
+        return {"places": places}
+    except ValueError as e:
+        # Handle postcode validation errors
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as e:
+        # Handle other unexpected errors
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}") from e

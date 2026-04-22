@@ -19,6 +19,7 @@ security:
 hooks:
 	uv tool install pre-commit
 	pre-commit install
+	pre-commit install --hook-type pre-push
 
 release-patch:
 	$(RUN) bump-my-version bump patch

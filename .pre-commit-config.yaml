@@ -31,3 +31,13 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
+
+  # Run the fast test suite before pushing — catches CI failures locally
+  - repo: local
+    hooks:
+      - id: tests
+        name: Unit & contract tests
+        entry: make test
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

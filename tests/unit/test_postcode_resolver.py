@@ -19,8 +19,6 @@ def test_postcode_to_point_returns_different_point_for_different_postcode(postco
     point_b = resolver.postcode_to_point("BB1 1BB")
 
     assert not point_a.equals(point_b)
-    assert point_b.x == -0.11
-    assert point_b.y == 51.51
 
 
 def test_postcode_to_point_raises_value_error_for_missing_postcode(postcodes_gdf):

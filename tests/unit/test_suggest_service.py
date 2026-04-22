@@ -3,6 +3,7 @@ from unittest.mock import Mock
 import geopandas as gpd
 from shapely.geometry import Polygon
 
+from compromeets.models.domain import PlaceResult
 from compromeets.services.suggest_service import SuggestService
 
 
@@ -22,7 +23,7 @@ def test_suggest_places_orchestrates_full_flow():
     mock_gdf = gpd.GeoDataFrame()
     mock_meeting_area_service.find_meeting_area.return_value = (mock_polygon, mock_gdf)
 
-    expected_places = [("Pub A", 4.5), ("Pub B", 4.0)]
+    expected_places = [PlaceResult(name="Pub A", rating=4.5), PlaceResult(name="Pub B", rating=4.0)]
     mock_place_search_service.search_nearby.return_value = expected_places
 
     # Test

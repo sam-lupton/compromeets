@@ -18,6 +18,9 @@ wheels/
 # Mac
 .DS_Store
 
+# VS Code
+.vscode
+
 # Data
 *.xml
 *.zip

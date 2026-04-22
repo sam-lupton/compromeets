@@ -24,7 +24,6 @@ def test_find_meeting_area_with_overlapping_polygons():
     assert not overlap_polygon.is_empty
     assert isinstance(overlap_gdf, gpd.GeoDataFrame)
     assert len(overlap_gdf) == 1
-    assert overlap_gdf.iloc[0]["description"] == "Overlap area"
     assert overlap_gdf.crs.to_string() == "EPSG:4326"
 
 

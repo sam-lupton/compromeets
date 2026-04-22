@@ -16,7 +16,8 @@ class TestGooglePlacesClient:
         """Test client initialization with explicit API key."""
         client = GooglePlacesClient(api_key="test-key")
         assert client.api_key == "test-key"
-        assert client.base_url == "https://places.googleapis.com/v1/places:searchNearby"
+        assert client.nearby_url == "https://places.googleapis.com/v1/places:searchNearby"
+        assert client.text_url == "https://places.googleapis.com/v1/places:searchText"
         client.close()
 
     def test_init_with_env_var(self, monkeypatch):
@@ -86,7 +87,9 @@ class TestGooglePlacesClient:
         """Test searching nearby when API returns an error."""
         # Setup mock response that raises an error
         mock_response = Mock()
-        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError("API Error", request=Mock(), response=Mock())
+        mock_response.status_code = 400
+        mock_response.text = "Invalid request"
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError("API Error", request=Mock(), response=mock_response)
 
         mock_client = Mock()
         mock_client.post.return_value = mock_response
@@ -94,7 +97,7 @@ class TestGooglePlacesClient:
 
         # Test
         client = GooglePlacesClient(api_key="test-key")
-        with pytest.raises(httpx.HTTPStatusError):
+        with pytest.raises(ValueError, match="Google Places API error"):
             location_data = PlaceSearchLocationData(latitude=37.4224764, longitude=-122.0842499, radius=500)
             client.search_nearby(location_data=location_data, types=["pub"])
         client.close()

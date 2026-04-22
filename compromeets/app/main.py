@@ -1,5 +1,8 @@
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import geopandas as gpd
 import pandas as pd
@@ -8,8 +11,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+from compromeets.clients.anthropic_client import AnthropicClient
 from compromeets.clients.google_places_client import GooglePlacesClient
 from compromeets.services.isochrone_service import IsochroneService
+from compromeets.services.llm_agent_service import LLMAgentService
 from compromeets.services.meeting_area_service import MeetingAreaService
 from compromeets.services.place_search_service import PlaceSearchService
 from compromeets.services.postcode_resolver import PostcodeResolver
@@ -55,13 +60,19 @@ async def lifespan(app: FastAPI):
         google_places_client=google_places_client,
     )
 
+    # Build LLM service
+    anthropic_client = AnthropicClient()
+    llm_agent_service = LLMAgentService(anthropic_client=anthropic_client)
+
     app.state.suggest_service = suggest_service
+    app.state.llm_agent_service = llm_agent_service
 
     print("Services loaded!")
 
     yield
 
     google_places_client.close()
+    anthropic_client.close()
     print("Cleanup complete")
 
 
@@ -71,10 +82,16 @@ app = FastAPI(lifespan=lifespan)
 class SuggestRequest(BaseModel):
     postcodes: list[str]
     types: list[str]
+    use_llm: bool = False
+    preference: str = "equidistance"
 
 
 def get_suggest_service(request: Request) -> SuggestService:
     return request.app.state.suggest_service
+
+
+def get_llm_agent_service(request: Request) -> LLMAgentService:
+    return request.app.state.llm_agent_service
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -84,14 +101,28 @@ async def home(request: Request):
 
 
 @app.post("/suggest")
-def suggest(request_body: SuggestRequest, service: SuggestService = Depends(get_suggest_service)):
+def suggest(
+    request_body: SuggestRequest,
+    service: SuggestService = Depends(get_suggest_service),
+    llm_service: LLMAgentService = Depends(get_llm_agent_service),
+):
     """API endpoint for suggesting meeting places"""
     try:
-        places = service.suggest_places(postcodes=request_body.postcodes, types=request_body.types)
-        return {"places": places}
+        if request_body.use_llm:
+            # LLM-based suggestion
+            venues = llm_service.suggest_venues(
+                locations=request_body.postcodes,
+                preference=request_body.preference,
+                types=request_body.types,
+            )
+            return {"places": venues, "method": "llm"}
+        else:
+            # Algorithm-based suggestion (existing isochrone method)
+            places = service.suggest_places(postcodes=request_body.postcodes, types=request_body.types)
+            return {"places": places, "method": "algorithm"}
     except ValueError as e:
-        # Handle postcode validation errors
+        logger.warning("Validation error in /suggest: %s", e)
         raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        # Handle other unexpected errors
+        logger.exception("Unexpected error in /suggest")
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}") from e

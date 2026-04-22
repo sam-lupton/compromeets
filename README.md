@@ -28,7 +28,37 @@ _set_uv_env_file
 
 You will need `GOOGLE_PLACES_API_KEY` to be set.
 
+For LLM-based venue suggestions (optional), also set `ANTHROPIC_API_KEY` in your `.env` file.
+
 Once that's all done, you can run the app. For now, it uses a simple template-based frontend on top of a FastAPI backend. Make sure [`uv`](https://docs.astral.sh/uv/getting-started/installation/) is installed and kick off the service with `uv run fastapi dev compromeets/app/main.py`.
+
+## API Usage
+
+The `/suggest` endpoint supports two modes:
+
+**Algorithm-based (default)**: Uses isochrone analysis and Google Places API
+```bash
+curl -X POST http://localhost:8000/suggest \
+  -H "Content-Type: application/json" \
+  -d '{
+    "postcodes": ["N7 8LT", "SW1A 1AA"],
+    "types": ["restaurant", "bar"]
+  }'
+```
+
+**LLM-based**: Uses Claude Sonnet 4.5 with prompt caching
+```bash
+curl -X POST http://localhost:8000/suggest \
+  -H "Content-Type: application/json" \
+  -d '{
+    "postcodes": ["N7 8LT", "SW1A 1AA"],
+    "types": ["sports pub"],
+    "use_llm": true,
+    "preference": "equidistance"
+  }'
+```
+
+Available preferences for LLM mode: `equidistance`, `minimum_overall_travel_time`, `best_rating`, `affordability`
 
 # Open source maps
 

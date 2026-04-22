@@ -11,7 +11,7 @@ dependencies = [
     "fastapi[standard]>=0.112.0",
     "googlemaps>=4.10.0",
     "httpx>=0.27.0",
-    "pytest>=9.0.1",
+    "pytest>=9.0.3",
     "r5py>=1.0.7",
     "responses>=0.25.8",
     "scikit-learn>=1.6.1",
@@ -21,16 +21,16 @@ dependencies = [
 [dependency-groups]
 dev = [
     "basedpyright>=1.39.3",
-    "bump-my-version>=1.2.4",
+    "bump-my-version>=1.3.0",
     "folium>=0.20.0",
-    "ipykernel>=7.1.0",
+    "ipykernel>=7.2.0",
     "mapclassify>=2.8.1",
-    "pytest>=8.4.2",
-    "pytest-cov>=7.0.0",
-    "pytest-env>=1.1.5",
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "pytest-env>=1.6.0",
     "pytest-xdist>=3.8.0",
-    "r5py-sampledata-helsinki>=1.0.3.post3",
-    "ruff>=0.14.5",
+    "r5py-sampledata-helsinki>=1.1.1",
+    "ruff>=0.15.11",
     "seaborn>=0.13.2",
 ]
 

@@ -32,9 +32,15 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  # Run the fast test suite before pushing — catches CI failures locally
+  # Run typecheck and the fast test suite before pushing — mirrors CI
   - repo: local
     hooks:
+      - id: typecheck
+        name: basedpyright
+        entry: make typecheck
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
       - id: tests
         name: Unit & contract tests
         entry: make test

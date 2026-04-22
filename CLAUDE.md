@@ -40,11 +40,12 @@ Follow the global pipeline from `~/.claude/CLAUDE.md`. Repo-specific notes:
 After any code change, run:
 
 ```bash
-make fmt   # auto-fix formatting and lint issues
-make test  # run the fast test suite (unit + contracts)
+make fmt       # auto-fix formatting and lint issues
+make test      # run the fast test suite (unit + contracts)
+make typecheck # basedpyright — must exit with 0 errors, 0 warnings
 ```
 
-Both must pass before committing. If `make fmt` changes any files, stage them before committing.
+All three must pass before committing. If `make fmt` changes any files, stage them before committing. Do not filter `make typecheck` output — check the raw exit code. The pre-push hook runs `make typecheck` and `make test` automatically before every push.
 
 ## Toolchain
 

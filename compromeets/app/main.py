@@ -98,7 +98,7 @@ def get_llm_agent_service(request: Request) -> LLMAgentService:
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Serve the main HTML page"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request, "index.html")
 
 
 @app.post("/suggest")

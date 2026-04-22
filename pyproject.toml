@@ -36,6 +36,21 @@ dev = [
 
 [tool.basedpyright]
 reportUnusedCallResult = false
+# Suppress noise from packages without stubs (pandas, r5py, geopandas)
+reportMissingTypeStubs = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownParameterType = false
+# Basedpyright-strict rules we don't enforce
+reportUnannotatedClassAttribute = false
+reportAny = false
+reportExplicitAny = false
+reportCallInDefaultInitializer = false
+reportImplicitStringConcatenation = false
+reportUnusedVariable = false
+reportUnusedParameter = false
+reportUnnecessaryTypeIgnoreComment = false
 
 [tool.pytest_env]
 ENVIRONMENT = "test"

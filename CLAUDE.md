@@ -58,7 +58,7 @@ All three must pass before committing. If `make fmt` changes any files, stage th
 | `make test-integration` | Integration tests (real API calls — skipped by default) |
 | `make security` | Bandit SAST scan (medium severity+) |
 | `make hooks` | Install pre-commit hooks (run once after cloning) |
-| `uv run mypy compromeets/` | Type checking |
+| `make typecheck` | Type checking (basedpyright) |
 | `uv run fastapi dev compromeets/app/main.py` | Start dev server |
 
 Line length: 120. Lint config: `pyproject.toml [tool.ruff]`.

@@ -43,8 +43,7 @@ def test_find_meeting_area_with_single_polygon():
     assert not overlap_polygon.is_empty
 
 
-def test_find_meeting_area_with_no_overlap():
-    # Create non-overlapping polygons
+def test_given_non_overlapping_isochrones_when_finding_meeting_area_then_raises():
     poly1 = Polygon([(-0.1, 51.5), (-0.08, 51.5), (-0.08, 51.52), (-0.1, 51.52)])
     poly2 = Polygon([(-0.05, 51.6), (-0.03, 51.6), (-0.03, 51.62), (-0.05, 51.62)])
 
@@ -55,11 +54,8 @@ def test_find_meeting_area_with_no_overlap():
     )
 
     service = MeetingAreaService()
-    overlap_polygon, overlap_gdf = service.find_meeting_area(isochrones=mock_isochrones)
-
-    # Even with no overlap, a result is returned (it will be empty)
-    assert isinstance(overlap_polygon, BaseGeometry)
-    assert overlap_polygon.is_empty
+    with pytest.raises(ValueError, match="empty"):
+        service.find_meeting_area(isochrones=mock_isochrones)
 
 
 def test_find_meeting_area_raises_for_empty_isochrones():

@@ -35,15 +35,30 @@ Follow the global pipeline from `~/.claude/CLAUDE.md`. Repo-specific notes:
 - **CDCT**: New clients go in `clients/`. Every client needs a contract test in `tests/contracts/`. The fixture response in the contract test should be a real sample from the API docs or a captured response.
 - **BDD**: Follow the `test_given_<context>_when_<action>_then_<outcome>` naming convention. See `tests/unit/test_place_search_service.py` for a worked example.
 
+## After making changes
+
+After any code change, run:
+
+```bash
+make fmt   # auto-fix formatting and lint issues
+make test  # run the fast test suite (unit + contracts)
+```
+
+Both must pass before committing. If `make fmt` changes any files, stage them before committing.
+
 ## Toolchain
 
-| Tool | Purpose | Command |
-|---|---|---|
-| `uv` | Package manager + runner | `uv run <cmd>` |
-| `pytest` | Tests | `uv run pytest tests/unit/` |
-| `ruff` | Lint + format | `uv run ruff check . && uv run ruff format .` |
-| `mypy` | Type checking | `uv run mypy compromeets/` |
-| FastAPI | Web framework | `uv run fastapi dev compromeets/app/main.py` |
+| Command | Purpose |
+|---|---|
+| `make fmt` | Auto-fix formatting and lint (ruff format + ruff check --fix) |
+| `make lint` | Lint check only, no fixes |
+| `make test` | Unit + contract tests |
+| `make test-cov` | Unit tests with coverage report |
+| `make test-integration` | Integration tests (real API calls — skipped by default) |
+| `make security` | Bandit SAST scan (medium severity+) |
+| `make hooks` | Install pre-commit hooks (run once after cloning) |
+| `uv run mypy compromeets/` | Type checking |
+| `uv run fastapi dev compromeets/app/main.py` | Start dev server |
 
 Line length: 120. Lint config: `pyproject.toml [tool.ruff]`.
 
@@ -56,7 +71,7 @@ tests/
   integration/ Real external calls. Marked @pytest.mark.integration, skipped by default.
 ```
 
-Run only the fast suite: `uv run pytest tests/unit/ tests/contracts/`
+`make test` runs `tests/unit/` and `tests/contracts/`. Never run integration tests unless explicitly testing external API behaviour — they hit real services and incur cost.
 
 ## Key Domain Facts
 

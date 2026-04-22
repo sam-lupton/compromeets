@@ -50,7 +50,11 @@ class GooglePlacesClient:
             raise ValueError(f"Google Places API error: {e.response.text}") from e
 
     def search_text(
-        self, text: str, location_data: PlaceSearchLocationData, types: list[str] | None = None, max_result_count: int = 10
+        self,
+        text: str,
+        location_data: PlaceSearchLocationData,
+        types: list[str] | None = None,
+        max_result_count: int = 10,
     ) -> GooglePlacesResponse:
         """Search for places using text query. Types parameter is optional for custom venue descriptions."""
         payload = {

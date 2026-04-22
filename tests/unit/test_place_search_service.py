@@ -18,7 +18,6 @@ from compromeets.models.domain import (
 )
 from compromeets.services.place_search_service import PlaceSearchService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

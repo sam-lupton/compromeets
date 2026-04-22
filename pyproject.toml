@@ -27,7 +27,6 @@ dev = [
     "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
-    "pytest-dotenv>=0.5.2",
     "pytest-env>=1.1.5",
     "pytest-xdist>=3.8.0",
     "r5py-sampledata-helsinki>=1.0.3.post3",
@@ -104,8 +103,10 @@ ignore = [
    "D203", # One blank line before class
    "D205",
    "D212", # Multiline summary second line
+   "D213", # conflicts with D212
    "D400",
    "D401",
+   "D403", # first word capitalisation — breaks when docstrings reference camelCase field names
    "D415",
    "DTZ001",
    "DTZ005", # ignore timezone warnings
@@ -116,6 +117,7 @@ ignore = [
    "INP001",
    "N803",
    "N806",
+   "N815", # mixedCase fields in Pydantic models that mirror external API JSON keys
    "NPY002",
    "PGH004",
    "PLE1205",

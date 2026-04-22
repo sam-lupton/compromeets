@@ -4,7 +4,7 @@ from types import TracebackType
 
 import httpx
 
-from compromeets.models.domain import PlaceSearchLocationData
+from compromeets.models.domain import GooglePlacesResponse, PlaceSearchLocationData
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class GooglePlacesClient:
         location_data: PlaceSearchLocationData,
         types: list[str],
         max_result_count: int = 10,
-    ) -> dict:
+    ) -> GooglePlacesResponse:
         logger.debug(f"Searching nearby with types: {types}")
         try:
             response = self.client.post(
@@ -44,25 +44,24 @@ class GooglePlacesClient:
                 },
             )
             response.raise_for_status()
-            return response.json()
+            return GooglePlacesResponse.model_validate(response.json())
         except httpx.HTTPStatusError as e:
             logger.error(f"Google Places API error: {e.response.status_code} - {e.response.text}")
             raise ValueError(f"Google Places API error: {e.response.text}") from e
 
     def search_text(
         self, text: str, location_data: PlaceSearchLocationData, types: list[str] | None = None, max_result_count: int = 10
-    ) -> dict:
+    ) -> GooglePlacesResponse:
         """Search for places using text query. Types parameter is optional for custom venue descriptions."""
         payload = {
             "textQuery": text,
             "maxResultCount": max_result_count,
             "locationBias": {"circle": {"center": location_data.location_dict(), "radius": location_data.radius}},
         }
-        
-        # Only include types if provided and non-empty (to support custom venue types)
+
         if types:
             payload["includedTypes"] = types
-        
+
         logger.debug(f"Searching with text query: '{text}', types: {types}")
         try:
             response = self.client.post(
@@ -75,7 +74,7 @@ class GooglePlacesClient:
                 json=payload,
             )
             response.raise_for_status()
-            return response.json()
+            return GooglePlacesResponse.model_validate(response.json())
         except httpx.HTTPStatusError as e:
             logger.error(f"Google Places API error: {e.response.status_code} - {e.response.text}")
             raise ValueError(f"Google Places API error: {e.response.text}") from e

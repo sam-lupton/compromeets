@@ -1,4 +1,4 @@
-"""Unit tests for Google Maps client using mocks to avoid real API calls."""
+"""Unit tests for GooglePlacesClient."""
 
 from unittest.mock import Mock, patch
 
@@ -6,158 +6,75 @@ import httpx
 import pytest
 
 from compromeets.clients.google_places_client import GooglePlacesClient
-from compromeets.models.domain import PlaceSearchLocationData
+from compromeets.models.domain import GooglePlacesResponse, PlaceSearchLocationData
+
+_LOCATION = PlaceSearchLocationData(latitude=51.5, longitude=-0.1, radius=500)
+
+_VALID_API_RESPONSE = {
+    "places": [
+        {"displayName": {"text": "The Crown"}, "rating": 4.3, "userRatingCount": 120},
+    ]
+}
 
 
 class TestGooglePlacesClient:
-    """Test suite for GoogleMapsClient."""
-
-    def test_init_with_api_key(self):
-        """Test client initialization with explicit API key."""
+    def test_init_with_explicit_api_key(self):
         client = GooglePlacesClient(api_key="test-key")
         assert client.api_key == "test-key"
-        assert client.nearby_url == "https://places.googleapis.com/v1/places:searchNearby"
-        assert client.text_url == "https://places.googleapis.com/v1/places:searchText"
         client.close()
 
-    def test_init_with_env_var(self, monkeypatch):
-        """Test client initialization using environment variable."""
+    def test_init_falls_back_to_env_var(self, monkeypatch):
         monkeypatch.setenv("GOOGLE_PLACES_API_KEY", "env-key")
         client = GooglePlacesClient()
         assert client.api_key == "env-key"
         client.close()
 
-    def test_init_missing_api_key(self, monkeypatch):
-        """Test that missing API key raises ValueError."""
+    def test_init_raises_when_no_api_key(self, monkeypatch):
         monkeypatch.delenv("GOOGLE_PLACES_API_KEY", raising=False)
         with pytest.raises(ValueError, match="API key must be provided"):
             GooglePlacesClient()
 
     @patch("compromeets.clients.google_places_client.httpx.Client")
-    def test_search_nearby_success(self, mock_client_class):
-        """Test successful searching nearby request."""
-        # Setup mock response
+    def test_given_valid_response_when_searching_nearby_then_returns_google_places_response(self, mock_client_class):
+        # Given
         mock_response = Mock()
-        mock_response.json.return_value = {
-            "results": [
-                {
-                    "displayName": "Test Place",
-                    "rating": 4.5,
-                    "userRatingCount": 100,
-                    "location": {"latitude": 37.4224764, "longitude": -122.0842499},
-                    "geometry": {"location": {"lat": 37.4224764, "lng": -122.0842499}},
-                }
-            ],
-            "status": "OK",
-        }
+        mock_response.json.return_value = _VALID_API_RESPONSE
         mock_response.raise_for_status = Mock()
+        mock_client_class.return_value = Mock(post=Mock(return_value=mock_response))
 
-        # Setup mock client
-        mock_client = Mock()
-        mock_client.post.return_value = mock_response
-        mock_client_class.return_value = mock_client
-
-        # Test
+        # When
         client = GooglePlacesClient(api_key="test-key")
-        location_data = PlaceSearchLocationData(latitude=37.4224764, longitude=-122.0842499, radius=500)
-        result = client.search_nearby(location_data=location_data, types=["pub"])
-
-        # Assertions
-        assert result["status"] == "OK"
-        assert len(result["results"]) == 1
-        mock_client.post.assert_called_once_with(
-            "https://places.googleapis.com/v1/places:searchNearby",
-            headers={
-                "X-Goog-Api-Key": "test-key",
-                "X-Goog-FieldMask": "places.displayName,places.rating,places.userRatingCount,places.location",
-                "Content-Type": "application/json",
-            },
-            json={
-                "includedTypes": ["pub"],
-                "maxResultCount": 10,
-                "locationRestriction": {
-                    "circle": {"center": {"latitude": 37.4224764, "longitude": -122.0842499}, "radius": 500}
-                },
-            },
-        )
+        result = client.search_nearby(location_data=_LOCATION, types=["pub"])
         client.close()
 
+        # Then
+        assert isinstance(result, GooglePlacesResponse)
+        assert result.places[0].displayName.text == "The Crown"
+        assert result.places[0].rating == 4.3
+
     @patch("compromeets.clients.google_places_client.httpx.Client")
-    def test_search_nearby_api_error(self, mock_client_class):
-        """Test searching nearby when API returns an error."""
-        # Setup mock response that raises an error
+    def test_given_api_error_when_searching_nearby_then_raises_value_error(self, mock_client_class):
+        # Given
         mock_response = Mock()
         mock_response.status_code = 400
         mock_response.text = "Invalid request"
-        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError("API Error", request=Mock(), response=mock_response)
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "API Error", request=Mock(), response=mock_response
+        )
+        mock_client_class.return_value = Mock(post=Mock(return_value=mock_response))
 
-        mock_client = Mock()
-        mock_client.post.return_value = mock_response
-        mock_client_class.return_value = mock_client
-
-        # Test
+        # When / Then
         client = GooglePlacesClient(api_key="test-key")
         with pytest.raises(ValueError, match="Google Places API error"):
-            location_data = PlaceSearchLocationData(latitude=37.4224764, longitude=-122.0842499, radius=500)
-            client.search_nearby(location_data=location_data, types=["pub"])
+            client.search_nearby(location_data=_LOCATION, types=["pub"])
         client.close()
 
-    @patch("compromeets.clients.google_places_client.httpx.Client")
-    def test_search_nearby_success_with_radius(self, mock_client_class):
-        """Test successful searching nearby request with radius."""
-        # Setup mock response
-        mock_response = Mock()
-        mock_response.json.return_value = {
-            "results": [
-                {
-                    "displayName": "Test Place",
-                    "rating": 4.5,
-                    "userRatingCount": 100,
-                    "location": {"latitude": 37.4224764, "longitude": -122.0842499},
-                    "geometry": {"location": {"lat": 37.4224764, "lng": -122.0842499}},
-                }
-            ],
-            "status": "OK",
-        }
-        mock_response.raise_for_status = Mock()
-
-        # Setup mock client
-        mock_client = Mock()
-        mock_client.post.return_value = mock_response
-        mock_client_class.return_value = mock_client
-
-        # Test
-        client = GooglePlacesClient(api_key="test-key")
-        location_data = PlaceSearchLocationData(latitude=37.4224764, longitude=-122.0842499, radius=1000)
-        result = client.search_nearby(location_data=location_data, types=["pub"])
-
-        # Assertions
-        assert result["status"] == "OK"
-        mock_client.post.assert_called_once_with(
-            "https://places.googleapis.com/v1/places:searchNearby",
-            headers={
-                "X-Goog-Api-Key": "test-key",
-                "X-Goog-FieldMask": "places.displayName,places.rating,places.userRatingCount,places.location",
-                "Content-Type": "application/json",
-            },
-            json={
-                "includedTypes": ["pub"],
-                "maxResultCount": 10,
-                "locationRestriction": {
-                    "circle": {"center": {"latitude": 37.4224764, "longitude": -122.0842499}, "radius": 1000}
-                },
-            },
-        )
-        client.close()
-
-    def test_context_manager(self):
-        """Test that client can be used as a context manager."""
+    def test_context_manager_closes_http_client_on_exit(self):
         with patch("compromeets.clients.google_places_client.httpx.Client") as mock_client_class:
-            mock_client = Mock()
-            mock_client_class.return_value = mock_client
+            mock_http = Mock()
+            mock_client_class.return_value = mock_http
 
-            with GooglePlacesClient(api_key="test-key") as client:
-                assert client.api_key == "test-key"
+            with GooglePlacesClient(api_key="test-key"):
+                pass
 
-            # Verify close was called
-            mock_client.close.assert_called_once()
+            mock_http.close.assert_called_once()

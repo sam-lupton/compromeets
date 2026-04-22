@@ -723,8 +723,8 @@
                             `;
                 });
               } else {
-                // Algorithm format: array of [name, rating] tuples
-                data.places.forEach(([name, rating]) => {
+                // Algorithm format: array of {name, rating} objects
+                data.places.forEach(({name, rating}) => {
                   html += `
                                 <div class="place-card">
                                     <div class="place-name">${name}</div>

@@ -13,6 +13,13 @@ fmt:
 lint:
 	$(RUN) ruff check
 
+security:
+	uv tool run bandit -r compromeets/ -ll -ii
+
+hooks:
+	uv tool install pre-commit
+	pre-commit install
+
 release-patch:
 	$(RUN) bump-my-version bump patch
 

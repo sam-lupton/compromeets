@@ -20,14 +20,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "basedpyright>=1.39.3",
     "bump-my-version>=1.2.4",
     "folium>=0.20.0",
     "ipykernel>=7.1.0",
     "mapclassify>=2.8.1",
-    "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
-    "pytest-dotenv>=0.5.2",
     "pytest-env>=1.1.5",
     "pytest-xdist>=3.8.0",
     "r5py-sampledata-helsinki>=1.0.3.post3",
@@ -37,6 +36,21 @@ dev = [
 
 [tool.basedpyright]
 reportUnusedCallResult = false
+# Suppress noise from packages without stubs (pandas, r5py, geopandas)
+reportMissingTypeStubs = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownParameterType = false
+# Basedpyright-strict rules we don't enforce
+reportUnannotatedClassAttribute = false
+reportAny = false
+reportExplicitAny = false
+reportCallInDefaultInitializer = false
+reportImplicitStringConcatenation = false
+reportUnusedVariable = false
+reportUnusedParameter = false
+reportUnnecessaryTypeIgnoreComment = false
 
 [tool.pytest_env]
 ENVIRONMENT = "test"
@@ -104,8 +118,10 @@ ignore = [
    "D203", # One blank line before class
    "D205",
    "D212", # Multiline summary second line
+   "D213", # conflicts with D212
    "D400",
    "D401",
+   "D403", # first word capitalisation — breaks when docstrings reference camelCase field names
    "D415",
    "DTZ001",
    "DTZ005", # ignore timezone warnings
@@ -116,6 +132,7 @@ ignore = [
    "INP001",
    "N803",
    "N806",
+   "N815", # mixedCase fields in Pydantic models that mirror external API JSON keys
    "NPY002",
    "PGH004",
    "PLE1205",

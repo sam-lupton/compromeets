@@ -1,0 +1,49 @@
+repos:
+  # Detect accidentally committed secrets
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.27.2
+    hooks:
+      - id: gitleaks
+
+  # Ruff lint + format (mirrors CI)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.8
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Bandit SAST (medium severity+)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.3
+    hooks:
+      - id: bandit
+        args: ["-r", "compromeets/", "-ll", "-ii"]
+        pass_filenames: false
+
+  # Prevent large files from being committed
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  # Run typecheck and the fast test suite before pushing — mirrors CI
+  - repo: local
+    hooks:
+      - id: typecheck
+        name: basedpyright
+        entry: make typecheck
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+      - id: tests
+        name: Unit & contract tests
+        entry: make test
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

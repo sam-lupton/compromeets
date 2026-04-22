@@ -1,10 +1,10 @@
 import logging
 import os
 from types import TracebackType
-from typing import Any
+from typing import cast
 
 from anthropic import Anthropic
-from anthropic.types import TextBlock
+from anthropic.types import TextBlock, TextBlockParam
 
 logger = logging.getLogger(__name__)
 
@@ -34,16 +34,22 @@ class AnthropicClient:
 
         """
         # For caching, system prompt needs to be in cache_control format
-        system_param: str | list[dict[str, Any]]
+        system_param: str | list[TextBlockParam]
         if use_caching:
-            system_param = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
+            # cache_control is valid at runtime; cast because TextBlockParam stubs may lag the SDK
+            system_param = cast(
+                list[TextBlockParam], [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
+            )
         else:
             system_param = system
 
         logger.debug(f"Calling Claude API with model {self.model}, caching={use_caching}")
 
         response = self.client.messages.create(
-            model=self.model, max_tokens=max_tokens, system=system_param, messages=[{"role": "user", "content": user}]  # type: ignore
+            model=self.model,
+            max_tokens=max_tokens,
+            system=system_param,
+            messages=[{"role": "user", "content": user}],  # type: ignore
         )
 
         # Log cache usage if available

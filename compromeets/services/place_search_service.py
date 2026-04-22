@@ -1,7 +1,7 @@
 # Calls GooglePlacesClient to search for places nearby a location
 # Handles multi-centre search, pagination/retries/backoff, deduping + canonicalisation, and rankings
 
-from shapely.geometry.base import BaseGeometry
+from shapely.geometry import Polygon
 from shapely.geometry.point import Point
 
 from compromeets.clients.google_places_client import GooglePlacesClient
@@ -11,10 +11,29 @@ from compromeets.models.domain import GooglePlacesResponse, PlaceResult, PlaceSe
 class PlaceSearchService:
     # Valid Google Places API types
     VALID_GOOGLE_TYPES = {
-        "restaurant", "cafe", "bar", "pub", "night_club", "bakery", "meal_takeaway",
-        "meal_delivery", "park", "tourist_attraction", "museum", "art_gallery",
-        "shopping_mall", "movie_theater", "bowling_alley", "amusement_park",
-        "aquarium", "zoo", "library", "gym", "spa", "stadium", "casino"
+        "restaurant",
+        "cafe",
+        "bar",
+        "pub",
+        "night_club",
+        "bakery",
+        "meal_takeaway",
+        "meal_delivery",
+        "park",
+        "tourist_attraction",
+        "museum",
+        "art_gallery",
+        "shopping_mall",
+        "movie_theater",
+        "bowling_alley",
+        "amusement_park",
+        "aquarium",
+        "zoo",
+        "library",
+        "gym",
+        "spa",
+        "stadium",
+        "casino",
     }
 
     def __init__(self, google_places_client: GooglePlacesClient):
@@ -28,7 +47,7 @@ class PlaceSearchService:
             reverse=True,
         )
 
-    def overlap_to_location_data(self, overlap: BaseGeometry) -> PlaceSearchLocationData:
+    def overlap_to_location_data(self, overlap: Polygon) -> PlaceSearchLocationData:
         centroid = overlap.centroid
         center_lat = centroid.y
         center_lng = centroid.x
@@ -48,7 +67,7 @@ class PlaceSearchService:
         """Check if a venue type is a valid Google Places API type"""
         return venue_type.lower() in self.VALID_GOOGLE_TYPES
 
-    def search_nearby(self, search_area: BaseGeometry, types: list[str]) -> list[PlaceResult]:
+    def search_nearby(self, search_area: Polygon, types: list[str]) -> list[PlaceResult]:
         """
         Search for places using Google Places API.
         Automatically handles custom venue types by using text search.
@@ -61,16 +80,14 @@ class PlaceSearchService:
         if custom_types:
             text_query = " or ".join(custom_types)
             results = self.google_places_client.search_text(
-                text=text_query,
-                location_data=location_data,
-                types=valid_types if valid_types else None
+                text=text_query, location_data=location_data, types=valid_types if valid_types else None
             )
         else:
             results = self.google_places_client.search_nearby(location_data=location_data, types=valid_types)
 
         return self.sort_places(results)
 
-    def search_text(self, text: str, search_area: BaseGeometry, types: list[str] | None = None) -> list[PlaceResult]:
+    def search_text(self, text: str, search_area: Polygon, types: list[str] | None = None) -> list[PlaceResult]:
         location_data = self.overlap_to_location_data(search_area)
 
         valid_types = None

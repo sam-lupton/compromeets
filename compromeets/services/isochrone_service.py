@@ -29,12 +29,12 @@ class IsochroneService:
             crs="EPSG:4326",
         )
 
-        isochrones = r5py.Isochrones(
+        isochrones = r5py.Isochrones(  # pyright: ignore[reportCallIssue]
             transport_network=self.transport_network,
             origins=origins_gdf,
             departure=departure_time,  # Must match GTFS service times - using a date with active service
             transport_modes=[r5py.TransportMode.TRANSIT, r5py.TransportMode.WALK],
-            isochrones=travel_times,
+            isochrones=travel_times,  # pyright: ignore[reportArgumentType]
         )
 
         return isochrones, origins_gdf

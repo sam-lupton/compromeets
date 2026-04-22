@@ -57,6 +57,7 @@ _SEARCH_POLYGON = Polygon([(-0.1, 51.5), (-0.08, 51.5), (-0.08, 51.52), (-0.1, 5
 # Provider contract: the raw API response must validate against GooglePlacesResponse
 # ---------------------------------------------------------------------------
 
+
 def test_provider_standard_nearby_response_validates_against_contract():
     result = GooglePlacesResponse.model_validate(NEARBY_RESPONSE)
     assert len(result.places) == 2
@@ -90,6 +91,7 @@ def test_provider_place_missing_display_name_violates_contract():
 # ---------------------------------------------------------------------------
 # Consumer contract: PlaceSearchService correctly maps GooglePlacesResponse → list[PlaceResult]
 # ---------------------------------------------------------------------------
+
 
 def test_consumer_maps_provider_response_to_place_results():
     mock_client = Mock()

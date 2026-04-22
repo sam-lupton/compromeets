@@ -18,10 +18,10 @@ from compromeets.models.domain import (
 )
 from compromeets.services.place_search_service import PlaceSearchService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_service() -> PlaceSearchService:
     return PlaceSearchService(google_places_client=Mock())
@@ -40,6 +40,7 @@ def _places_response(*pairs: tuple[str, float]) -> GooglePlacesResponse:
 # ---------------------------------------------------------------------------
 # overlap_to_location_data
 # ---------------------------------------------------------------------------
+
 
 def test_given_a_square_polygon_when_converting_to_location_data_then_returns_centroid_and_positive_radius():
     # Given
@@ -60,6 +61,7 @@ def test_given_a_square_polygon_when_converting_to_location_data_then_returns_ce
 # ---------------------------------------------------------------------------
 # sort_places
 # ---------------------------------------------------------------------------
+
 
 def test_given_multiple_places_when_sorting_then_returns_highest_rated_first():
     # Given
@@ -99,6 +101,7 @@ def test_given_a_place_with_no_rating_when_sorting_then_defaults_rating_to_zero(
 # ---------------------------------------------------------------------------
 # search_nearby
 # ---------------------------------------------------------------------------
+
 
 def test_given_valid_google_types_when_searching_nearby_then_calls_client_and_returns_sorted_place_results():
     # Given
@@ -141,6 +144,7 @@ def test_given_a_custom_venue_type_when_searching_nearby_then_falls_back_to_text
 # ---------------------------------------------------------------------------
 # search_text
 # ---------------------------------------------------------------------------
+
 
 def test_given_a_text_query_when_searching_then_calls_client_and_returns_sorted_place_results():
     # Given

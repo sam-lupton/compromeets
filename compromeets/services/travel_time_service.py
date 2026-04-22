@@ -31,7 +31,7 @@ class TravelTimeService:
             {"id": [f"dest{i}" for i in range(num_points)]}, geometry=postcode_points, crs="EPSG:4326"
         )
         # Calculate travel time matrix (fastest method)
-        travel_times = r5py.TravelTimeMatrix(  # type: ignore
+        travel_times = r5py.TravelTimeMatrix(  # pyright: ignore[reportCallIssue]
             transport_network=self.transport_network,
             origins=origins,
             destinations=destinations,
@@ -51,11 +51,11 @@ class TravelTimeService:
             {"id": [f"origin{i}" for i in range(len(origins))]}, geometry=origins, crs="EPSG:4326"
         )
         destination_gdf = gpd.GeoDataFrame({"id": ["destination"]}, geometry=[destination], crs="EPSG:4326")
-        travel_times = r5py.TravelTimeMatrix(  # type: ignore
+        travel_times = r5py.TravelTimeMatrix(  # pyright: ignore[reportCallIssue]
             transport_network=self.transport_network,
             origins=origin_gdf,
             destinations=destination_gdf,
             departure=departure_time,
             transport_modes=[r5py.TransportMode.TRANSIT, r5py.TransportMode.WALK],
         )
-        return travel_times["travel_time"]  # type: ignore
+        return pd.Series(travel_times["travel_time"])

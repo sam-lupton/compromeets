@@ -1,10 +1,10 @@
 import logging
 import os
 from types import TracebackType
-from typing import Any
+from typing import cast
 
 from anthropic import Anthropic
-from anthropic.types import TextBlock
+from anthropic.types import TextBlock, TextBlockParam
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +34,12 @@ class AnthropicClient:
 
         """
         # For caching, system prompt needs to be in cache_control format
-        system_param: str | list[dict[str, Any]]
+        system_param: str | list[TextBlockParam]
         if use_caching:
-            system_param = [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
+            # cache_control is valid at runtime; cast because TextBlockParam stubs may lag the SDK
+            system_param = cast(
+                list[TextBlockParam], [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}]
+            )
         else:
             system_param = system
 

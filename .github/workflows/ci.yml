@@ -25,8 +25,8 @@ jobs:
       - name: Ruff format check
         run: uv run ruff format --check .
 
-      - name: mypy
-        run: uv run mypy compromeets/
+      - name: basedpyright
+        run: uv run basedpyright compromeets/
 
   security:
     name: Bandit SAST

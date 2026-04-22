@@ -1,3 +1,5 @@
+from typing import cast
+
 import geopandas as gpd
 from shapely.geometry.point import Point
 
@@ -18,4 +20,4 @@ class PostcodeResolver:
                 f"Please check the postcode is valid and in the correct format."
             )
 
-        return matches.geometry.values[0]  # type: ignore
+        return cast(Point, matches.geometry.values[0])

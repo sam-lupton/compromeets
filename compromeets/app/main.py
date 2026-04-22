@@ -31,8 +31,9 @@ async def lifespan(app: FastAPI):
     print("Loading transport network and services...")
 
     # Load postcodes
-    postcodes_gdf = pd.read_csv(
-        "~/Downloads/ONSPD_NOV_2025/Data/ONSPD_NOV_2025_UK.csv", usecols=["pcds", "lat", "long"]
+    postcodes_gdf = pd.read_csv(  # pyright: ignore[reportCallIssue]
+        "~/Downloads/ONSPD_NOV_2025/Data/ONSPD_NOV_2025_UK.csv",
+        usecols=["pcds", "lat", "long"],  # pyright: ignore[reportArgumentType]
     )
     postcodes_gdf = gpd.GeoDataFrame(postcodes_gdf, geometry=gpd.points_from_xy(postcodes_gdf.long, postcodes_gdf.lat))
     postcode_resolver = PostcodeResolver(postcodes_gdf=postcodes_gdf)
@@ -113,7 +114,7 @@ def suggest(
             venues = llm_service.suggest_venues(
                 locations=request_body.postcodes,
                 preference=request_body.preference,
-                types=request_body.types,
+                venue_type=", ".join(request_body.types),
             )
             return {"places": venues, "method": "llm"}
         else:

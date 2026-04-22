@@ -13,6 +13,9 @@ fmt:
 lint:
 	$(RUN) ruff check
 
+typecheck:
+	$(RUN) basedpyright compromeets/
+
 security:
 	uv tool run bandit -r compromeets/ -ll -ii
 

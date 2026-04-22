@@ -1,6 +1,7 @@
 import logging
 import os
 from types import TracebackType
+from typing import Any
 
 import httpx
 
@@ -57,7 +58,7 @@ class GooglePlacesClient:
         max_result_count: int = 10,
     ) -> GooglePlacesResponse:
         """Search for places using text query. Types parameter is optional for custom venue descriptions."""
-        payload = {
+        payload: dict[str, Any] = {
             "textQuery": text,
             "maxResultCount": max_result_count,
             "locationBias": {"circle": {"center": location_data.location_dict(), "radius": location_data.radius}},

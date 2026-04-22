@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 from compromeets.clients.anthropic_client import AnthropicClient
 from compromeets.prompts.system_prompts import MEETING_LOCATION_RANKER_SYSTEM_PROMPT
@@ -14,7 +15,7 @@ class LLMAgentService:
     def __init__(self, anthropic_client: AnthropicClient):
         self.client = anthropic_client
 
-    def suggest_venues(self, locations: list[str], preference: str, venue_type: str) -> list[dict]:
+    def suggest_venues(self, locations: list[str], preference: str, venue_type: str) -> list[dict[str, Any]]:
         """
         Use LLM to suggest meeting venues based on participant locations and preferences.
 

@@ -1,5 +1,8 @@
+from typing import cast
+
 import geopandas as gpd
 from r5py import Isochrones
+from shapely.geometry import Polygon
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
 
@@ -8,7 +11,7 @@ class MeetingAreaService:
     def find_meeting_area(
         self,
         isochrones: Isochrones,
-    ) -> tuple[BaseGeometry, gpd.GeoDataFrame]:
+    ) -> tuple[Polygon, gpd.GeoDataFrame]:
         polygons: list[BaseGeometry] = []
 
         for iso in isochrones.geometry:
@@ -32,4 +35,4 @@ class MeetingAreaService:
         print(f"Overlap area: {overlap_polygon.area * 111000 * 111000:.2f} square meters")
         print(f"Overlap exists: {not overlap_polygon.is_empty}")
 
-        return overlap_polygon, overlap_gdf
+        return cast(Polygon, overlap_polygon), overlap_gdf

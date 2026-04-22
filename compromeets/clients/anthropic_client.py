@@ -43,7 +43,10 @@ class AnthropicClient:
         logger.debug(f"Calling Claude API with model {self.model}, caching={use_caching}")
 
         response = self.client.messages.create(
-            model=self.model, max_tokens=max_tokens, system=system_param, messages=[{"role": "user", "content": user}]  # type: ignore
+            model=self.model,
+            max_tokens=max_tokens,
+            system=system_param,
+            messages=[{"role": "user", "content": user}],  # type: ignore
         )
 
         # Log cache usage if available

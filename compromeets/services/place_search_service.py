@@ -11,10 +11,29 @@ from compromeets.models.domain import GooglePlacesResponse, PlaceResult, PlaceSe
 class PlaceSearchService:
     # Valid Google Places API types
     VALID_GOOGLE_TYPES = {
-        "restaurant", "cafe", "bar", "pub", "night_club", "bakery", "meal_takeaway",
-        "meal_delivery", "park", "tourist_attraction", "museum", "art_gallery",
-        "shopping_mall", "movie_theater", "bowling_alley", "amusement_park",
-        "aquarium", "zoo", "library", "gym", "spa", "stadium", "casino"
+        "restaurant",
+        "cafe",
+        "bar",
+        "pub",
+        "night_club",
+        "bakery",
+        "meal_takeaway",
+        "meal_delivery",
+        "park",
+        "tourist_attraction",
+        "museum",
+        "art_gallery",
+        "shopping_mall",
+        "movie_theater",
+        "bowling_alley",
+        "amusement_park",
+        "aquarium",
+        "zoo",
+        "library",
+        "gym",
+        "spa",
+        "stadium",
+        "casino",
     }
 
     def __init__(self, google_places_client: GooglePlacesClient):
@@ -61,9 +80,7 @@ class PlaceSearchService:
         if custom_types:
             text_query = " or ".join(custom_types)
             results = self.google_places_client.search_text(
-                text=text_query,
-                location_data=location_data,
-                types=valid_types if valid_types else None
+                text=text_query, location_data=location_data, types=valid_types if valid_types else None
             )
         else:
             results = self.google_places_client.search_nearby(location_data=location_data, types=valid_types)

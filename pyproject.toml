@@ -8,7 +8,7 @@ requires-python = ">=3.10"
 dependencies = [
     "anthropic",
     "fastapi>=0.128.0",
-    "fastapi[standard]>=0.112.0",
+    "fastapi[standard]>=0.137.1",
     "googlemaps>=4.10.0",
     "httpx>=0.27.0",
     "pytest>=9.0.1",

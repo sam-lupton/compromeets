@@ -7,7 +7,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "anthropic",
-    "fastapi>=0.128.0",
+    "fastapi>=0.138.0",
     "fastapi[standard]>=0.112.0",
     "googlemaps>=4.10.0",
     "httpx>=0.27.0",
